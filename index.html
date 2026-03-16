@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Push · Pull · Legs Workout Program</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const workoutData = {
+      days: [
+        {
+          id: "push",
+          label: "Day 1",
+          title: "Push",
+          subtitle: "Chest · Shoulders · Triceps",
+          accent: "#E8785A",
+          warmup: "5 min: Band pull-aparts (2×15), arm circles, thoracic rotations on bench",
+          exercises: [
+            { name: "Barbell Bench Press", sets: "3", reps: "6–8", note: "Controlled descent, 2-sec pause at chest. Elbows slightly tucked — protects shoulders long-term.", tag: "Compound" },
+            { name: "Incline DB Press", sets: "3", reps: "10–12", note: "30° incline. Full range of motion. Neutral grip option to reduce shoulder stress.", tag: "Compound" },
+            { name: "DB Lateral Raise", sets: "3", reps: "12–15", note: "Slight forward lean, light weight, no momentum. Shoulder longevity staple.", tag: "Isolation" },
+            { name: "Seated DB Overhead Press", sets: "2", reps: "10–12", note: "Seated for spinal stability. Neutral grip to minimize impingement risk.", tag: "Compound" },
+            { name: "Tricep Pushdown (Band)", sets: "3", reps: "15–20", note: "Constant tension. Elbows fixed. Joint-friendly finisher.", tag: "Isolation" },
+          ],
+          core: {
+            name: "Core Finisher · ~4 min",
+            exercises: ["Dead Bug — 3×8 each side (slow, controlled breathing)", "Plank with shoulder tap — 3×10 each side"],
+          },
+          mobility: {
+            name: "Push Day Mobility · ~8 min",
+            focus: "Thoracic spine · Chest · Shoulders",
+            moves: [
+              { name: "Thoracic Extension over Bench", duration: "60–90 sec", note: "Arms crossed, extend over bench edge. Reverses the hunching that limits pressing." },
+              { name: "Doorway Chest Stretch", duration: "45 sec each side", note: "Elbow at 90°. Lean through doorway gently. Pec minor and anterior shoulder." },
+              { name: "Band Pull-Apart", duration: "2×15 reps", note: "Arms straight, light band. Rear delt and scapular health — pairs perfectly with pressing days." },
+              { name: "Neck Half-Circles", duration: "10 slow reps", note: "Ear to shoulder each side. Gentle cervical mobility — no full circles backward." },
+              { name: "Wrist Circles + Extensions", duration: "30 sec each", note: "Hands flat on floor, lean forward. Keeps wrists healthy for pressing." },
+            ],
+          },
+        },
+        {
+          id: "pull",
+          label: "Day 2",
+          title: "Pull",
+          subtitle: "Back · Biceps · Rear Delts",
+          accent: "#5A9FE8",
+          warmup: "5 min: Band face pulls (2×15), cat-cow (10 reps), scapular retractions",
+          exercises: [
+            { name: "Barbell Bent-Over Row", sets: "3", reps: "6–8", note: "Hip hinge, neutral spine. Pull to lower chest. Brace hard — protect the lower back.", tag: "Compound" },
+            { name: "Pull-Up / Band-Assisted Pull-Up", sets: "3", reps: "6–10", note: "Full hang at bottom. Use band to stay in rep range. Shoulder-width grip.", tag: "Compound" },
+            { name: "DB Single-Arm Row", sets: "3", reps: "10–12 each", note: "Brace on bench. Drive elbow back, full stretch at bottom.", tag: "Compound" },
+            { name: "Band Face Pull", sets: "3", reps: "15–20", note: "High anchor, pull to forehead with external rotation. Non-negotiable for shoulder health.", tag: "Prehab" },
+            { name: "Incline DB Curl", sets: "3", reps: "10–12", note: "Long-head emphasis. Full stretch at bottom. No swinging.", tag: "Isolation" },
+          ],
+          core: {
+            name: "Core Finisher · ~4 min",
+            exercises: ["Pallof Press (band) — 3×10 each side (anti-rotation)", "Ab Wheel Rollout — 3×8–10 (or from knees)"],
+          },
+          mobility: {
+            name: "Pull Day Mobility · ~8 min",
+            focus: "Hips · Hamstrings · Spine",
+            moves: [
+              { name: "Cat-Cow", duration: "10 slow reps", note: "Breathe into each position. Spinal segmentation and back decompression post-rows." },
+              { name: "Child's Pose with Lat Reach", duration: "60 sec each side", note: "Reach one arm out wide. Opens the lat and thoracic — perfect after pull work." },
+              { name: "90/90 Hip Stretch", duration: "60 sec each side", note: "Sit on floor, both legs at 90°. Lean forward on front shin. Hip capsule health." },
+              { name: "Standing Hamstring Hinge (Band)", duration: "10 slow reps", note: "Band around foot, hinge at hip. Gentle active stretch post-RDL days." },
+              { name: "World's Greatest Stretch", duration: "4 reps each side", note: "Lunge + thoracic rotation in one move. Hip, spine, and ankle in under 2 minutes." },
+            ],
+          },
+        },
+        {
+          id: "legs",
+          label: "Day 3",
+          title: "Legs",
+          subtitle: "Quads · Hamstrings · Glutes · Calves",
+          accent: "#5ACA8A",
+          warmup: "5 min: Glute bridges 2×12, clamshells 2×12, ankle circles, box step-ups (bodyweight)",
+          exercises: [
+            { name: "Box Squat (Parallel / Above Parallel)", sets: "3", reps: "6–8", note: "Sit back to a box set at parallel or slightly above. Takes shear off the knee. Load with barbell. Longevity-first squat variation.", tag: "Compound", badge: "Knee-friendly" },
+            { name: "Romanian Deadlift (RDL)", sets: "3", reps: "8–10", note: "Hinge at hips, soft knee, feel the hamstring stretch. Minimal knee stress — big hamstring and glute return.", tag: "Compound" },
+            { name: "DB Bulgarian Split Squat", sets: "3", reps: "8–10 each leg", note: "Rear foot elevated on bench. Keep front shin vertical — don't let knee dive inward. Start lighter than you think; control the descent. Builds single-leg stability critical for long-term knee health.", tag: "Compound", badge: "Load consciously" },
+            { name: "Leg Curl (DB or Band)", sets: "3", reps: "12–15", note: "Lying with DB or seated with band. Pure hamstring isolation. Zero knee compression.", tag: "Isolation" },
+            { name: "Standing Calf Raise", sets: "3", reps: "15–20", note: "Full range — pause at top, full stretch at bottom. Calf strength supports knee stability.", tag: "Isolation" },
+          ],
+          core: {
+            name: "Core Finisher · ~4 min",
+            exercises: ["Suitcase Carry (DB) — 3×30 sec each side (anti-lateral flexion)", "Glute Bridge March — 3×10 each side"],
+          },
+          mobility: {
+            name: "Leg Day Mobility · ~8 min",
+            focus: "Knees · Ankles · Hip Flexors",
+            moves: [
+              { name: "Ankle Circles + Dorsiflexion Work", duration: "60 sec each foot", note: "Sit and trace full circles, then drive knee over toe against a wall. Ankle mobility directly affects knee health." },
+              { name: "Supine Knee Hug + Figure-Four", duration: "60 sec each side", note: "On back — hug one knee, then cross ankle over opposite thigh. Piriformis and glute stretch without stressing the knee." },
+              { name: "Kneeling Hip Flexor Stretch", duration: "60 sec each side", note: "Half-kneeling lunge position. Tuck pelvis under. Tight hip flexors overload the knee — this is essential." },
+              { name: "Seated Hamstring Stretch (band)", duration: "60 sec each leg", note: "Band around foot, seated on floor or bench. Gentle, sustained. No bouncing." },
+              { name: "Terminal Knee Extension (band)", duration: "2×15 reps each", note: "Band behind knee, straighten leg fully. Activates VMO — the muscle that stabilizes and protects the knee joint." },
+            ],
+          },
+        },
+      ],
+    };
+
+    const tagColors = {
+      Compound: { bg: "rgba(255,255,255,0.1)", text: "rgba(255,255,255,0.65)" },
+      Isolation: { bg: "rgba(255,255,255,0.05)", text: "rgba(255,255,255,0.4)" },
+      Prehab: { bg: "rgba(255,220,100,0.15)", text: "#ffd75a" },
+    };
+
+    function WorkoutProgram() {
+      const [activeDay, setActiveDay] = useState("push");
+      const [activeSection, setActiveSection] = useState("workout");
+      const [checked, setChecked] = useState({});
+
+      const toggle = (key) => setChecked((p) => ({ ...p, [key]: !p[key] }));
+      const day = workoutData.days.find((d) => d.id === activeDay);
+      const accent = day.accent;
+
+      const doneCount = day.exercises.filter((_, i) => checked[`${activeDay}-ex-${i}`]).length;
+      const mobDone = day.mobility.moves.filter((_, i) => checked[`${activeDay}-mob-${i}`]).length;
+      const coreDone = day.core.exercises.filter((_, i) => checked[`${activeDay}-core-${i}`]).length;
+
+      return (
+        <div style={{ minHeight: "100vh", background: "#0d0d11", fontFamily: "Georgia, serif", color: "#e8e4dc", paddingBottom: "4rem" }}>
+          <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            .pf { font-family: 'Playfair Display', Georgia, serif; }
+            .dm { font-family: 'DM Sans', system-ui, sans-serif; }
+            .btn { border: none; cursor: pointer; transition: all 0.2s ease; background: transparent; }
+            .card { transition: background 0.15s, border-color 0.15s; border-radius: 10px; }
+            .card:hover { background: rgba(255,255,255,0.03) !important; }
+            ::-webkit-scrollbar { width: 3px; }
+            ::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 3px; }
+          `}</style>
+
+          {/* Header */}
+          <div style={{ maxWidth: 660, margin: "0 auto", padding: "2rem 1.25rem 0" }}>
+            <div className="dm" style={{ fontSize: 10, letterSpacing: "0.2em", color: "#555", textTransform: "uppercase", marginBottom: 6 }}>
+              Home Gym · Longevity · 30–45 min
+            </div>
+            <h1 className="pf" style={{ fontSize: "clamp(1.9rem, 5vw, 2.7rem)", fontWeight: 900, color: "#f2ede4", lineHeight: 1.05 }}>
+              Push · Pull · Legs
+            </h1>
+            <p className="dm" style={{ fontSize: 12, color: "#666", marginTop: 6, fontWeight: 300 }}>
+              3-day split · Knee-conscious · Joint-first programming
+            </p>
+          </div>
+
+          {/* Day selector */}
+          <div style={{ maxWidth: 660, margin: "1.5rem auto 0", padding: "0 1.25rem" }}>
+            <div style={{ display: "flex", gap: 3, background: "#14141a", borderRadius: 11, padding: 3 }}>
+              {workoutData.days.map((d) => {
+                const active = activeDay === d.id;
+                return (
+                  <button key={d.id} className="btn dm"
+                    onClick={() => { setActiveDay(d.id); setActiveSection("workout"); }}
+                    style={{
+                      flex: 1, padding: "10px 6px", borderRadius: 8, fontSize: 13, fontWeight: 500,
+                      color: active ? "#0d0d11" : "#666",
+                      background: active ? d.accent : "transparent",
+                      letterSpacing: "0.01em",
+                    }}
+                  >
+                    {d.title}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ maxWidth: 660, margin: "0 auto", padding: "0 1.25rem" }}>
+            {/* Day title row */}
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", margin: "1.75rem 0 1.25rem" }}>
+              <div>
+                <div className="dm" style={{ fontSize: 10, letterSpacing: "0.16em", color: accent, textTransform: "uppercase", marginBottom: 4 }}>
+                  {day.label}
+                </div>
+                <h2 className="pf" style={{ fontSize: "2rem", fontWeight: 700, color: "#f2ede4", lineHeight: 1 }}>
+                  {day.title}
+                </h2>
+                <div className="dm" style={{ fontSize: 12, color: "#666", marginTop: 3 }}>{day.subtitle}</div>
+              </div>
+              {/* Section toggle */}
+              <div style={{ display: "flex", background: "#14141a", borderRadius: 8, padding: 3, gap: 2 }}>
+                {["workout", "mobility"].map((s) => (
+                  <button key={s} className="btn dm"
+                    onClick={() => setActiveSection(s)}
+                    style={{
+                      padding: "7px 12px", borderRadius: 6, fontSize: 11, fontWeight: 500,
+                      letterSpacing: "0.06em", textTransform: "uppercase",
+                      color: activeSection === s ? "#0d0d11" : "#555",
+                      background: activeSection === s ? (s === "mobility" ? "#C47FE8" : accent) : "transparent",
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* WORKOUT SECTION */}
+            {activeSection === "workout" && (
+              <>
+                {/* Warmup */}
+                <div style={{ background: "#14141a", border: "1px solid #222230", borderRadius: 10, padding: "13px 15px", marginBottom: "1rem" }}>
+                  <div className="dm" style={{ fontSize: 10, letterSpacing: "0.14em", color: "#555", textTransform: "uppercase", marginBottom: 5 }}>Warm-Up · 5 min</div>
+                  <div className="dm" style={{ fontSize: 12, color: "#999", fontWeight: 300, lineHeight: 1.55 }}>{day.warmup}</div>
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ marginBottom: "1rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                    <div className="dm" style={{ fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: "0.12em" }}>Exercises</div>
+                    <div className="dm" style={{ fontSize: 10, color: accent }}>{doneCount} / {day.exercises.length}</div>
+                  </div>
+                  <div style={{ height: 2, background: "#1e1e28", borderRadius: 2 }}>
+                    <div style={{ height: "100%", background: accent, borderRadius: 2, width: `${(doneCount / day.exercises.length) * 100}%`, transition: "width 0.3s ease" }} />
+                  </div>
+                </div>
+
+                {/* Exercises */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {day.exercises.map((ex, i) => {
+                    const key = `${activeDay}-ex-${i}`;
+                    const done = checked[key];
+                    return (
+                      <div key={key} className="card"
+                        onClick={() => toggle(key)}
+                        style={{
+                          background: done ? accent + "12" : "#14141a",
+                          border: `1px solid ${done ? accent + "40" : "#1e1e28"}`,
+                          padding: "13px 15px", cursor: "pointer",
+                          opacity: done ? 0.55 : 1,
+                        }}
+                      >
+                        <div style={{ display: "flex", gap: 11 }}>
+                          <div style={{
+                            width: 20, height: 20, borderRadius: 5, flexShrink: 0, marginTop: 1,
+                            border: `1.5px solid ${done ? accent : "#333"}`,
+                            background: done ? accent : "transparent",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            transition: "all 0.2s",
+                          }}>
+                            {done && <span style={{ color: "#0d0d11", fontSize: 10, fontWeight: 700 }}>✓</span>}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 5 }}>
+                              <span className="pf" style={{ fontSize: "1rem", color: "#f0ece3", textDecoration: done ? "line-through" : "none" }}>
+                                {ex.name}
+                              </span>
+                              <span className="dm" style={{
+                                fontSize: 9, letterSpacing: "0.09em", textTransform: "uppercase", padding: "2px 6px", borderRadius: 4,
+                                background: tagColors[ex.tag]?.bg, color: tagColors[ex.tag]?.text,
+                              }}>{ex.tag}</span>
+                              {ex.badge && (
+                                <span className="dm" style={{
+                                  fontSize: 9, letterSpacing: "0.09em", textTransform: "uppercase", padding: "2px 6px", borderRadius: 4,
+                                  background: "rgba(90,202,138,0.15)", color: "#5ACA8A",
+                                }}>{ex.badge}</span>
+                              )}
+                            </div>
+                            <div style={{ display: "flex", gap: 20, marginBottom: 6 }}>
+                              <div>
+                                <span className="dm" style={{ fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: "0.1em" }}>Sets </span>
+                                <span className="dm" style={{ fontSize: 13, color: accent, fontWeight: 500 }}>{ex.sets}</span>
+                              </div>
+                              <div>
+                                <span className="dm" style={{ fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: "0.1em" }}>Reps </span>
+                                <span className="dm" style={{ fontSize: 13, color: accent, fontWeight: 500 }}>{ex.reps}</span>
+                              </div>
+                            </div>
+                            <div className="dm" style={{ fontSize: 12, color: "#888", lineHeight: 1.55, fontWeight: 300 }}>{ex.note}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Core */}
+                <div style={{
+                  marginTop: "1rem",
+                  background: "#14141a",
+                  borderLeft: `3px solid ${accent}`,
+                  border: `1px solid #1e1e28`,
+                  borderLeftColor: accent,
+                  borderRadius: 10, padding: "13px 15px",
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div className="dm" style={{ fontSize: 10, letterSpacing: "0.13em", color: accent, textTransform: "uppercase" }}>
+                      {day.core.name}
+                    </div>
+                    <div className="dm" style={{ fontSize: 10, color: accent }}>{coreDone} / {day.core.exercises.length}</div>
+                  </div>
+                  {day.core.exercises.map((e, i) => {
+                    const key = `${activeDay}-core-${i}`;
+                    const done = checked[key];
+                    return (
+                      <div key={key} onClick={() => toggle(key)}
+                        style={{
+                          display: "flex", gap: 10, alignItems: "flex-start",
+                          padding: "7px 0", borderTop: i > 0 ? "1px solid #1e1e28" : "none",
+                          cursor: "pointer", opacity: done ? 0.5 : 1,
+                        }}
+                      >
+                        <div style={{
+                          width: 16, height: 16, borderRadius: 4, flexShrink: 0, marginTop: 1,
+                          border: `1.5px solid ${done ? accent : "#333"}`,
+                          background: done ? accent : "transparent",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          transition: "all 0.2s",
+                        }}>
+                          {done && <span style={{ color: "#0d0d11", fontSize: 8, fontWeight: 700 }}>✓</span>}
+                        </div>
+                        <span className="dm" style={{ fontSize: 12, color: "#aaa", fontWeight: 300, textDecoration: done ? "line-through" : "none", lineHeight: 1.5 }}>{e}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Rest guidance */}
+                <div style={{ marginTop: "1rem", background: "#0f0f15", borderRadius: 10, padding: "12px 15px", display: "flex", gap: 20, flexWrap: "wrap" }}>
+                  {[
+                    { label: "Compound rest", val: "90–120 sec" },
+                    { label: "Isolation rest", val: "45–60 sec" },
+                    { label: "RPE target", val: "7–8 / 10" },
+                  ].map((g) => (
+                    <div key={g.label}>
+                      <div className="dm" style={{ fontSize: 9, color: "#444", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 2 }}>{g.label}</div>
+                      <div className="dm" style={{ fontSize: 12, color: "#999", fontWeight: 500 }}>{g.val}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* MOBILITY SECTION */}
+            {activeSection === "mobility" && (
+              <>
+                <div style={{ background: "#14141a", border: "1px solid #2a1f35", borderRadius: 10, padding: "13px 15px", marginBottom: "1rem" }}>
+                  <div className="dm" style={{ fontSize: 10, letterSpacing: "0.13em", color: "#C47FE8", textTransform: "uppercase", marginBottom: 4 }}>
+                    {day.mobility.name}
+                  </div>
+                  <div className="dm" style={{ fontSize: 12, color: "#888", fontWeight: 300 }}>
+                    Focus: <span style={{ color: "#C47FE8" }}>{day.mobility.focus}</span>
+                  </div>
+                </div>
+
+                {/* Mobility progress */}
+                <div style={{ marginBottom: "1rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                    <div className="dm" style={{ fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: "0.12em" }}>Progress</div>
+                    <div className="dm" style={{ fontSize: 10, color: "#C47FE8" }}>{mobDone} / {day.mobility.moves.length}</div>
+                  </div>
+                  <div style={{ height: 2, background: "#1e1e28", borderRadius: 2 }}>
+                    <div style={{ height: "100%", background: "#C47FE8", borderRadius: 2, width: `${(mobDone / day.mobility.moves.length) * 100}%`, transition: "width 0.3s ease" }} />
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {day.mobility.moves.map((mv, i) => {
+                    const key = `${activeDay}-mob-${i}`;
+                    const done = checked[key];
+                    return (
+                      <div key={key} className="card"
+                        onClick={() => toggle(key)}
+                        style={{
+                          background: done ? "rgba(196,127,232,0.1)" : "#14141a",
+                          border: `1px solid ${done ? "rgba(196,127,232,0.35)" : "#1e1e28"}`,
+                          padding: "13px 15px", cursor: "pointer",
+                          opacity: done ? 0.55 : 1,
+                        }}
+                      >
+                        <div style={{ display: "flex", gap: 11 }}>
+                          <div style={{
+                            width: 20, height: 20, borderRadius: "50%", flexShrink: 0, marginTop: 1,
+                            border: `1.5px solid ${done ? "#C47FE8" : "#333"}`,
+                            background: done ? "#C47FE8" : "transparent",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            transition: "all 0.2s",
+                          }}>
+                            {done && <span style={{ color: "#0d0d11", fontSize: 10, fontWeight: 700 }}>✓</span>}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4, gap: 8 }}>
+                              <span className="pf" style={{ fontSize: "1rem", color: "#f0ece3", textDecoration: done ? "line-through" : "none" }}>
+                                {mv.name}
+                              </span>
+                              <span className="dm" style={{ fontSize: 11, color: "#C47FE8", fontWeight: 500, flexShrink: 0 }}>{mv.duration}</span>
+                            </div>
+                            <div className="dm" style={{ fontSize: 12, color: "#888", lineHeight: 1.55, fontWeight: 300 }}>{mv.note}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div style={{ marginTop: "1rem", background: "#0f0f15", borderRadius: 10, padding: "13px 15px" }}>
+                  <div className="dm" style={{ fontSize: 10, color: "#C47FE8", textTransform: "uppercase", letterSpacing: "0.13em", marginBottom: 6 }}>
+                    When to do this
+                  </div>
+                  <div className="dm" style={{ fontSize: 12, color: "#777", lineHeight: 1.65, fontWeight: 300 }}>
+                    Do this <strong style={{ color: "#bbb", fontWeight: 400 }}>after your workout</strong> while muscles are warm, or in the evening. Pairing it with the same training day builds a lasting habit. Even 3 days a week of consistent mobility work compounds significantly over years.
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Longevity principles */}
+            <div style={{ marginTop: "2rem", background: "#14141a", borderRadius: 12, border: "1px solid #1e1e28", padding: "1.5rem" }}>
+              <div className="pf" style={{ fontSize: "0.95rem", color: "#777", marginBottom: "1rem", fontStyle: "italic" }}>
+                Programming principles
+              </div>
+              {[
+                ["Box squat replaces deep squat", "Box at parallel or above. Eliminates the bottom range where knee shear is highest. Full strength benefit, fraction of the joint stress."],
+                ["Bulgarian split squats — load consciously", "Keep the weight modest and the form strict: front shin vertical, controlled descent. The single-leg stability work is invaluable for longevity — just don't race the load up."],
+                ["Load slowly, always", "RPE 7–8. Add weight only when you complete all reps with clean form. Never rush progression — you're building a 20-year habit."],
+                ["Mon / Wed / Fri structure", "Never back-to-back days. Tissue repair happens in the 48-hour window — honor it."],
+                ["Pain vs. burn", "Muscle burn is fine. Joint pain means stop and assess. They are not the same signal."],
+              ].map(([title, body]) => (
+                <div key={title} style={{ marginBottom: "0.85rem" }}>
+                  <div className="dm" style={{ fontSize: 12, color: "#d0c8bc", fontWeight: 500, marginBottom: 2 }}>{title}</div>
+                  <div className="dm" style={{ fontSize: 12, color: "#555", fontWeight: 300, lineHeight: 1.55 }}>{body}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WorkoutProgram />);
+  </script>
+</body>
+</html>
