@@ -14,13 +14,15 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
+
+    const STORAGE_KEY = "workout-progress";
 
     const workoutData = {
       days: [
         {
           id: "push",
-          label: "Day 1",
+          label: "Monday",
           title: "Push",
           subtitle: "Chest · Shoulders · Triceps",
           accent: "#E8785A",
@@ -49,8 +51,33 @@
           },
         },
         {
+          id: "cardio1",
+          label: "Tuesday",
+          title: "Zone 2",
+          subtitle: "Steady-State Cardio · Stationary Bike",
+          accent: "#F5A623",
+          warmup: "5 min: Easy pedaling at low resistance, gradually increasing cadence. Leg swings 10 each side, hip circles.",
+          exercises: [
+            { name: "Stationary Bike — Zone 2", sets: "1", reps: "45–60 min", note: "Resistance level 2. Maintain conversational pace — you should be able to talk but not sing. Heart rate 60–70% max. This is aerobic base building.", tag: "Cardio", badge: "Zone 2" },
+          ],
+          core: {
+            name: "Core Finisher · ~5 min",
+            exercises: ["Bird Dog — 3×8 each side (slow, hold 2 sec at top)", "Side Plank — 2×20–30 sec each side"],
+          },
+          mobility: {
+            name: "Zone 2 Mobility · ~6 min",
+            focus: "Hip Flexors · Quads · Lower Back",
+            moves: [
+              { name: "Kneeling Hip Flexor Stretch", duration: "60 sec each side", note: "After extended cycling, hip flexors tighten. Half-kneel, tuck pelvis, lean forward gently." },
+              { name: "Supine Figure-Four Stretch", duration: "45 sec each side", note: "On back, ankle over opposite knee. Pulls the piriformis and glute — counters the seated position." },
+              { name: "Quad Stretch (Standing or Side-Lying)", duration: "45 sec each side", note: "Grab ankle, keep knees together. Quads work continuously on the bike — give them length." },
+              { name: "Cat-Cow", duration: "10 slow reps", note: "Restores spinal movement after sustained forward posture. Breathe deeply." },
+            ],
+          },
+        },
+        {
           id: "pull",
-          label: "Day 2",
+          label: "Wednesday",
           title: "Pull",
           subtitle: "Back · Biceps · Rear Delts",
           accent: "#5A9FE8",
@@ -79,8 +106,33 @@
           },
         },
         {
+          id: "cardio2",
+          label: "Thursday",
+          title: "HIIT",
+          subtitle: "High-Intensity Intervals · Stationary Bike",
+          accent: "#E85A8A",
+          warmup: "5 min: Easy pedaling 2 min, then 3×20 sec pickups with 40 sec easy between. Prepares legs and cardiovascular system for intensity.",
+          exercises: [
+            { name: "HIIT Intervals — 30s On / 60s Off", sets: "12–15", reps: "rounds", note: "30 seconds ALL OUT (85–95% effort, high resistance), then 60 seconds easy spinning. Total time: 18–22 min. RPE should hit 9/10 on work intervals.", tag: "Cardio", badge: "High Intensity" },
+          ],
+          core: {
+            name: "Core Finisher · ~5 min",
+            exercises: ["Mountain Climbers — 3×20 (controlled, not for speed)", "Hollow Body Hold — 3×20 sec"],
+          },
+          mobility: {
+            name: "HIIT Recovery Mobility · ~6 min",
+            focus: "Quads · Hip Flexors · Breathing",
+            moves: [
+              { name: "Standing Quad Stretch", duration: "45 sec each side", note: "After intense quad work, they need length. Hold wall for balance, keep knees together." },
+              { name: "Deep Breathing + Chest Opener", duration: "60 sec", note: "Hands behind head, elbows wide, breathe deeply. Recovers heart rate and opens the chest post-effort." },
+              { name: "Supine Spinal Twist", duration: "45 sec each side", note: "Knees to one side, arms wide. Decompresses the spine after intense effort." },
+              { name: "Kneeling Hip Flexor + Reach", duration: "45 sec each side", note: "Half-kneel, reach same-side arm overhead and lean away. Hip flexor and lateral line." },
+            ],
+          },
+        },
+        {
           id: "legs",
-          label: "Day 3",
+          label: "Friday",
           title: "Legs",
           subtitle: "Quads · Hamstrings · Glutes · Calves",
           accent: "#5ACA8A",
@@ -115,14 +167,49 @@
       Compound: { bg: "rgba(255,255,255,0.1)", text: "rgba(255,255,255,0.65)" },
       Isolation: { bg: "rgba(255,255,255,0.05)", text: "rgba(255,255,255,0.4)" },
       Prehab: { bg: "rgba(255,220,100,0.15)", text: "#ffd75a" },
+      Cardio: { bg: "rgba(245,166,35,0.15)", text: "#F5A623" },
     };
 
     function WorkoutProgram() {
       const [activeDay, setActiveDay] = useState("push");
       const [activeSection, setActiveSection] = useState("workout");
-      const [checked, setChecked] = useState({});
+      const [checked, setChecked] = useState(() => {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          return saved ? JSON.parse(saved) : {};
+        } catch {
+          return {};
+        }
+      });
+
+      // Save to localStorage whenever checked changes
+      useEffect(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(checked));
+        } catch {
+          // localStorage might be unavailable
+        }
+      }, [checked]);
 
       const toggle = (key) => setChecked((p) => ({ ...p, [key]: !p[key] }));
+
+      // Reset progress for a specific day
+      const resetDay = (dayId) => {
+        setChecked((prev) => {
+          const newState = { ...prev };
+          Object.keys(newState).forEach((key) => {
+            if (key.startsWith(`${dayId}-`)) {
+              delete newState[key];
+            }
+          });
+          return newState;
+        });
+      };
+
+      // Reset all progress
+      const resetAll = () => {
+        setChecked({});
+      };
       const day = workoutData.days.find((d) => d.id === activeDay);
       const accent = day.accent;
 
@@ -207,6 +294,32 @@
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Reset options */}
+            <div style={{ display: "flex", gap: 8, marginBottom: "1rem" }}>
+              <button
+                className="btn dm"
+                onClick={() => resetDay(activeDay)}
+                style={{
+                  padding: "6px 12px", borderRadius: 6, fontSize: 10, fontWeight: 500,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  color: "#666", background: "#14141a", border: "1px solid #1e1e28",
+                }}
+              >
+                Reset {day.title}
+              </button>
+              <button
+                className="btn dm"
+                onClick={resetAll}
+                style={{
+                  padding: "6px 12px", borderRadius: 6, fontSize: 10, fontWeight: 500,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  color: "#666", background: "#14141a", border: "1px solid #1e1e28",
+                }}
+              >
+                Reset All Days
+              </button>
             </div>
 
             {/* WORKOUT SECTION */}
